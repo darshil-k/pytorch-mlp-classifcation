@@ -1,0 +1,16 @@
+artifact_uri: mlflow-artifacts:/951298555847558711/2f8737ee76f44a2a9e40a1abacc75337/artifacts
+deleted_time: 1722256950650
+end_time: 1722251331033
+entry_point_name: ''
+experiment_id: '951298555847558711'
+lifecycle_stage: deleted
+run_id: 2f8737ee76f44a2a9e40a1abacc75337
+run_name: run-1
+run_uuid: 2f8737ee76f44a2a9e40a1abacc75337
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1722251293107
+status: 3
+tags: []
+user_id: darsh

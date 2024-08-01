@@ -1,0 +1,7 @@
+artifact_location: mlflow-artifacts:/340982519870618062
+creation_time: 1722227880905
+experiment_id: '340982519870618062'
+last_update_time: 1722228466171
+lifecycle_stage: deleted
+name: mlp-classification-mnist
+tags: {}
