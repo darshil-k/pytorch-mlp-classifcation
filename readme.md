@@ -6,10 +6,9 @@ This is a multi-layer perceptron model for multi-class classification using the 
 MNIST: Handwritten digits dataset
 
 ## Logging and Monitoring
-We use MLflow for logging and monitoring the model training process.
+We use Tensorboard for logging and monitoring the model training process.
 
 ## TODO
-- Add Tensorboard support
 - Add support for custom datasets
 - Add logging dataset summary
 - Add logging system metrics
@@ -17,5 +16,5 @@ We use MLflow for logging and monitoring the model training process.
 - Loss function and Optimizer should be configurable and added to logs1
 - Add logging device information
 - Add logging execution time
-- This repository is supposed to take 1-D data as input. But we are inputting images(MNIST) and flattening them. We should flatten the image while creating the dataset itself. Thus making the code available for any custom 1-D data.
 - Add test, inference & batch inference scripts
+- Add logging for final layer embeddings in tensorboard projector

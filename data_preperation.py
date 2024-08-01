@@ -36,17 +36,24 @@ class MNISTDataPreparation:
             if not os.path.exists(data_dir):
                 os.makedirs(data_dir)
 
+    def transform_image_flatten(self):
+        """
+        This method defined & returns transforms object of torchvision.transforms.Compose
+        :return: The transform object.
+        """
+        # flatten the image and convert to tensor
+        transform = transforms.Compose([transforms.ToTensor(), transforms.Lambda(lambda x: torch.flatten(x))])
+        return transform
+
+
     def prepare_data(self) -> (DataLoader, DataLoader):
         """
         This method prepares the train and test data for the model.
         :return: The train and test data loaders.
         """
-        # Defining the transformation for the data
-        transform = transforms.Compose([transforms.ToTensor()])
-
         # Loading the train and test data
-        self.train_data = datasets.MNIST(root=self.data_dir, train=True, download=self.is_download, transform=transform)
-        self.test_data = datasets.MNIST(root=self.data_dir, train=False, download=self.is_download, transform=transform)
+        self.train_data = datasets.MNIST(root=self.data_dir, train=True, download=self.is_download, transform=self.transform_image_flatten())
+        self.test_data = datasets.MNIST(root=self.data_dir, train=False, download=self.is_download, transform=self.transform_image_flatten())
 
         # Creating the data loaders
         train_loader = DataLoader(self.train_data, batch_size=self.batch_size, shuffle=True)
@@ -70,8 +77,9 @@ class MNISTDataPreparation:
 
     def get_steps_per_epoch(self) -> int:
         """
-        This method returns the number of steps per epoch.
-        :return: The number of steps per epoch.
+        This method returns the steps per epoch.
+        :return: The steps per epoch.
         """
-        return int(len(self.train_data) / self.batch_size)
+        steps_per_epoch = np.ceil(self.get_length("train") / self.batch_size)
+        return int(steps_per_epoch)
 

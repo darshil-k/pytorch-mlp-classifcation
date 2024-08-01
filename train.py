@@ -10,15 +10,15 @@ from torchmetrics import Accuracy, F1Score
 
 from data_preperation import MNISTDataPreparation
 from hyper_parameters import HyperParameters
-from mlflow_logging import MLFlowLogging
+from tensorboard_logging import TensorboardLogging
 from model import NeuralNet
 
 # set up mlflow for tracking
-logger = MLFlowLogging(run_name="run-0")
+logger = TensorboardLogging(run_name="run-1")
 
 # Prepare Hyperparameters and log to mlflow
 hyper_parameters = HyperParameters(batch_size=200)
-logger.log_params(hyper_parameters.__dict__)
+logger.log_hyper_parameters(hyper_parameters)
 
 # Prepare data
 data = MNISTDataPreparation(batch_size=hyper_parameters.batch_size, data_dir='data', is_download=False)
@@ -28,13 +28,13 @@ train_loader, test_loader = data.prepare_data()
 
 # Device configuration
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-logger.log_params({"device": device})
 
 # Model and log model summary
 model = NeuralNet(hyper_parameters)
 model.to(device)
 logger.log_model_summary(model, hyper_parameters)
-
+#TODO: solve for this error
+# logger.log_model_graph(model)
 
 # Loss, accuracy & optimizer setup
 loss_func = nn.CrossEntropyLoss()
@@ -57,7 +57,7 @@ for epoch_idx in range(hyper_parameters.num_epochs):
         model.train()
 
         # Move tensors to the configured device
-        images = images.reshape(hyper_parameters.batch_size, hyper_parameters.input_size).to(device)
+        images = images.to(device)
         labels = labels.to(device)
 
         # Forward pass
@@ -97,9 +97,9 @@ for epoch_idx in range(hyper_parameters.num_epochs):
                    .format(epoch_idx+1, hyper_parameters.num_epochs, batch_idx+1, len(train_loader), total_step_count, loss.item(), f1score.item(), accuracy.item()))
 
             # Log the loss to mlflow
-            logger.log_metric("training-loss", loss.item(), total_step_count)
-            logger.log_metric("training-accuracy", accuracy.item(), total_step_count)
-            logger.log_metric("training-f1-score", f1score.item(), total_step_count)
+            logger.log_loss("training", accumulated_loss.item(), total_step_count)
+            # logger.log_metric("training-accuracy", accuracy.item(), total_step_count)
+            # logger.log_metric("training-f1-score", f1score.item(), total_step_count)
 
     # Validation loop
     # set the model in evaluation mode
@@ -109,7 +109,7 @@ for epoch_idx in range(hyper_parameters.num_epochs):
     all_val_predictions = []
     with torch.no_grad():
         for images, labels in test_loader:
-            images = images.reshape(hyper_parameters.batch_size, hyper_parameters.input_size).to(device)
+            images = images.to(device)
             labels = labels.to(device)
             predictions = model(images)
             all_val_labels.append(labels)
@@ -129,9 +129,9 @@ for epoch_idx in range(hyper_parameters.num_epochs):
         validation_f1score = f1_score_func(validation_predictions_classes, validation_labels)
 
         # Log the accumulated loss and accuracy metrics to mlflow
-        logger.log_metric("validation-loss", validation_loss.item(), total_step_count)
-        logger.log_metric("validation-accuracy", validation_accuracy.item(), total_step_count)
-        logger.log_metric("validation-f1-score", validation_f1score.item(), total_step_count)
+        logger.log_loss("validation", validation_loss.item(), total_step_count)
+        # logger.log_metric("validation-accuracy", validation_accuracy.item(), total_step_count)
+        # logger.log_metric("validation-f1-score", validation_f1score.item(), total_step_count)
 
         print('Validation loss: {:.4f}, f1-score: {:.4f}, accuracy: {:.4f}'
               .format(validation_loss.item(), validation_f1score.item(), validation_accuracy.item()))
