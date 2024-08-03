@@ -2,6 +2,7 @@
 This file is used to train the model.
 """
 import os
+import time
 
 # Importing the required libraries
 import torch
@@ -14,11 +15,10 @@ from tensorboard_logging import TensorboardLogging
 from model import NeuralNet
 
 # set up mlflow for tracking
-logger = TensorboardLogging(run_name="run-1")
+logger = TensorboardLogging(run_name="run-2")
 
 # Prepare Hyperparameters and log to mlflow
 hyper_parameters = HyperParameters(batch_size=200)
-logger.log_hyper_parameters(hyper_parameters)
 
 # Prepare data
 data = MNISTDataPreparation(batch_size=hyper_parameters.batch_size, data_dir='data', is_download=False)
@@ -29,11 +29,16 @@ classes = data.classes
 
 # Device configuration
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+hyper_parameters.device = device
+# Avoid device profiler as it is too heavy. Creates a lot of data, overhead
+# logger.setup_device_profiler()
+logger.log_hyper_parameters(hyper_parameters)
+
 
 # Model and log model summary
 model = NeuralNet(hyper_parameters)
 model.to(device)
-logger.log_model_summary(model, hyper_parameters)
+logger.log_model_summary(model, hyper_parameters, device)
 #TODO: solve for this error
 # logger.log_model_graph(model)
 
@@ -49,7 +54,10 @@ steps_per_epoch = data.get_steps_per_epoch()
 
 # Training loop
 for epoch_idx in range(hyper_parameters.num_epochs):
+    epoch_start_time = time.time()
     for batch_idx, (batch_train_images, batch_train_labels) in enumerate(train_loader):
+        batch_train_start_time = time.time()
+
         # placeholders for accumulated labels, predictions for batches until logged
         accumulated_batch_train_labels = []
         accumulated_batch_train_predictions = []
@@ -78,6 +86,8 @@ for epoch_idx in range(hyper_parameters.num_epochs):
         accumulated_batch_train_labels.append(batch_train_labels)
         accumulated_batch_train_predictions.append(batch_train_predictions)
 
+        total_step_count = (epoch_idx * steps_per_epoch) + (batch_idx + 1)
+
         # Print the loss every `print_after_n_steps` steps
         if (batch_idx+1) % log_after_n_train_steps == 0:
             # concatenate all predictions & all labels for all batches of training
@@ -93,7 +103,7 @@ for epoch_idx in range(hyper_parameters.num_epochs):
             accumulated_batch_train_f1score = f1_score_func(accumulated_batch_train_predicted_classes_indices, accumulated_batch_train_labels)
 
 
-            total_step_count = (epoch_idx * steps_per_epoch) + (batch_idx + 1)
+
             print ("Epoch [{}/{}], Step [{}/{}, total steps = {}], Accumulated batches' Loss: {:.4f}, Accumulated batches' f1-score: {:.4f}, Accumulated batches' accuracy: {:.4f}"
                    .format(epoch_idx+1, hyper_parameters.num_epochs, batch_idx+1, len(train_loader), total_step_count, accumulated_batch_train_loss.item(), accumulated_batch_train_f1score.item(), accumulated_batch_train_accuracy.item()))
 
@@ -101,8 +111,15 @@ for epoch_idx in range(hyper_parameters.num_epochs):
             logger.log_loss("Accumulated training batches' loss", accumulated_batch_train_loss.item(), total_step_count)
             # logger.log_metric("training-accuracy", accuracy.item(), total_step_count)
             # logger.log_metric("training-f1-score", f1score.item(), total_step_count)
+            # Avoid device profiler as it is too heavy. Creates a lot of data, overhead
+            # logger.device_profiler_step()
+
+        batch_train_end_time = time.time()
+        logger.log_execution_time("Training batch", int(batch_train_end_time - batch_train_start_time),
+                                  total_step_count)
 
     # Validation loop
+    validation_start_time = time.time()
     # set the model in evaluation mode
     model.eval()
     # placeholders for accumulated labels, predictions for all batches of validation
@@ -129,15 +146,28 @@ for epoch_idx in range(hyper_parameters.num_epochs):
         validation_accuracy = accuracy_func(validation_predictions_classes_indices, validation_labels)
         validation_f1score = f1_score_func(validation_predictions_classes_indices, validation_labels)
 
+
+
+        print('Validation loss: {:.4f}, f1-score: {:.4f}, accuracy: {:.4f}'
+              .format(validation_loss.item(), validation_f1score.item(), validation_accuracy.item()))
         # Log the accumulated loss and accuracy metrics to mlflow
         logger.log_loss("validation loss", validation_loss.item(), total_step_count)
         # logger.log_metric("validation-accuracy", validation_accuracy.item(), total_step_count)
         # logger.log_metric("validation-f1-score", validation_f1score.item(), total_step_count)
 
         logger.visualize_embeddings(validation_predictions, validation_labels, total_step_count, classes=classes)
+        # Avoid device profiler as it is too heavy. Creates a lot of data, overhead
+        # logger.device_profiler_step()
+        # logger.device_profiler_step()
 
-        print('Validation loss: {:.4f}, f1-score: {:.4f}, accuracy: {:.4f}'
-              .format(validation_loss.item(), validation_f1score.item(), validation_accuracy.item()))
+    validation_end_time = time.time()
+    logger.log_execution_time("Full Validation", int(validation_end_time - validation_start_time),
+                              total_step_count)
+
+    epoch_end_time = time.time()
+    print("Time taken for epoch: ", epoch_end_time - epoch_start_time)
+    logger.log_execution_time("Full Epoch", int(epoch_end_time - epoch_start_time),
+                              total_step_count)
 
 
 # Plot PR curves for all classes on test data. This will be logged to Tensorboard.

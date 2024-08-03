@@ -6,6 +6,7 @@ from typing import Any, Literal, Optional, List
 import numpy
 import torchvision
 from torch.utils.tensorboard import SummaryWriter
+import torch
 
 from data_preperation import MNISTDataClasses
 from model_utils import summary
@@ -25,6 +26,7 @@ class TensorboardLogging:
         """
         self.log_dir = log_dir
         self.setup(run_name)
+        self.device_profiler_state = False
 
     def setup(self, run_name: str | None = None):
         """
@@ -32,6 +34,7 @@ class TensorboardLogging:
         :param run_name: Name of the run.
         :return: The writer object.
         """
+        self.run_name = run_name
         self.writer = SummaryWriter(log_dir=self.log_dir+"/"+run_name)
         return self.writer
 
@@ -51,13 +54,14 @@ class TensorboardLogging:
         """
         self.writer.add_graph(model)
 
-    def log_model_summary(self, model, hyper_parameters: HyperParameters):
+    def log_model_summary(self, model, hyper_parameters: HyperParameters, device: str):
         """
         This method logs the model summary to tensorboard.
         :param model: Loaded model
         :param hyper_parameters: Hyperparameters for the model
+        :param device: Device to run the model on
         """
-        _, model_summary = summary(model, input_size=(hyper_parameters.batch_size, hyper_parameters.input_size))
+        _, model_summary = summary(model, input_size=(hyper_parameters.batch_size, hyper_parameters.input_size), device=device)
         self.writer.add_text("Model Summary", text_string=str(model_summary))
 
     def log_hyper_parameters(self, hyper_parameters: HyperParameters):
@@ -77,18 +81,24 @@ class TensorboardLogging:
         """
         self.writer.add_scalars("Loss", {loss_type: loss}, step)
 
-    def log_artifact(self, artifact_path: str):
+    def log_execution_time(self, execution_type: str, time_taken: int, step: int):
         """
-        This method logs the artifact to Tensorboard.
-        :param artifact_path: The path of the artifact.
+        This method logs the execution time to Tensorboard.
+        :param execution_type: The type of execution.
+        :param time_taken: The time taken.
+        :param step: The step value.
         """
-        pass
+        self.writer.add_scalars("Execution Time", {execution_type: time_taken}, step)
+
 
     def stop(self):
         """
         This method stops the Tensorboard.
         """
         self.writer.close()
+        if self.device_profiler_state:
+            self.device_profiler_state = False
+            self.profiler.stop()
 
     def visualize_embeddings(self, features: Any, labels: Any, global_step: int, select_n_points: Optional[int]=100, tag: Optional[str] = "step", classes : MNISTDataClasses | None = None):
         """
@@ -121,6 +131,10 @@ class TensorboardLogging:
         else:
             labels = [str(label) for label in labels]
 
+        # IMPORTANT NOTE: The embedding visualization can be seen in the "Projector" tab in Tensorboard.
+        # If we choose to visualize by color; all embeddings will be colored as per their class/labels.
+        # In the left panel, we can see the class names and their colors.
+        # But if we switch on dark mode in visualization; the colors will change. And they will not match the colors in the left panel.
         self.writer.add_embedding(features, metadata=labels, global_step=global_step, tag=tag)
 
     def add_pr_curves(self, probabilities, groundtruth_labels, global_step, num_classes, tag="test_data_pr_curve"):
@@ -138,20 +152,48 @@ class TensorboardLogging:
         probabilities = probabilities.cpu().detach().numpy()
         groundtruth_labels = groundtruth_labels.cpu().detach().numpy()
 
-        print("predictions shape: ", probabilities.shape)
-        print("groundtruth_labels shape: ", groundtruth_labels.shape)
-
         # plot all the pr curves
         for class_index in range(num_classes):
             # ground truth for class with index class_index. 1 if class_index, 0 otherwise
             groundtruth_for_class = groundtruth_labels == class_index
-            print("groundtruth_for_class shape: ", groundtruth_for_class.shape)
-            print("groundtruth_for_class: ", groundtruth_for_class[:100])
+
             # Find the probabilities (for each test data point) for the class with index class_index
             predictions_for_class = probabilities[:, class_index]
-            print("predictions_for_class shape: ", predictions_for_class.shape)
-            print("predictions_for_class: ", predictions_for_class[:100])
+
             self.writer.add_pr_curve(tag+"_for class "+str(class_index+1),
                                      groundtruth_for_class,
                                 predictions_for_class,
                                 global_step=global_step)
+
+    def setup_device_profiler(self):
+        """
+        This method sets up the device profiler.
+        """
+        if torch.cuda.is_available():
+            activities = [torch.profiler.ProfilerActivity.CUDA, torch.profiler.ProfilerActivity.CPU]
+        else:
+            activities = [torch.profiler.ProfilerActivity.CPU]
+        self.profiler = torch.profiler.profile(
+                        activities=activities,
+                        schedule=torch.profiler.schedule(wait=1, warmup=1, active=3, repeat=0),
+                        on_trace_ready=torch.profiler.tensorboard_trace_handler(self.log_dir+"/"+self.run_name),
+                        record_shapes=False,
+                        profile_memory=False,
+                        with_stack=False,
+                        with_flops=False,
+                        with_modules=False,
+                        )
+        self.profiler.start()
+
+        self.device_profiler_state = True
+
+        return self.profiler
+
+    def device_profiler_step(self):
+        """
+        This method defines a step boundary for device profiler
+        """
+        assert self.device_profiler_state, "Device profiler is not set up. Please call setup_device_profiler() method first."
+        self.profiler.step()
+
+

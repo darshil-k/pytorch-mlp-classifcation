@@ -5,29 +5,41 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e5840de8-e7ec-4e8c-b89a-853eecef7bd2" name="Changes" comment="First Commit">
-      <change afterPath="$PROJECT_DIR$/tensorboard_logs/run-1/00300/step/metadata.tsv" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tensorboard_logs/run-1/00300/step/tensors.tsv" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tensorboard_logs/run-1/00600/step/metadata.tsv" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tensorboard_logs/run-1/00600/step/tensors.tsv" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tensorboard_logs/run-1/00900/step/metadata.tsv" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tensorboard_logs/run-1/00900/step/tensors.tsv" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tensorboard_logs/run-1/01200/step/metadata.tsv" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tensorboard_logs/run-1/01200/step/tensors.tsv" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tensorboard_logs/run-1/01500/step/metadata.tsv" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tensorboard_logs/run-1/01500/step/tensors.tsv" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tensorboard_logs/run-1/1722670453.248944/events.out.tfevents.1722670453.darshil-pc.17920.1" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tensorboard_logs/run-1/Loss_Accumulated training batches' loss/events.out.tfevents.1722670456.darshil-pc.17920.2" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tensorboard_logs/run-1/Loss_validation loss/events.out.tfevents.1722670461.darshil-pc.17920.3" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tensorboard_logs/run-1/events.out.tfevents.1722670453.darshil-pc.17920.0" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tensorboard_logs/run-1/projector_config.pbtxt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tensorboard_logs/run-1/1722705893.8153725/events.out.tfevents.1722705893.darshil-pc.16884.1" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tensorboard_logs/run-1/Execution Time_Full Epoch/events.out.tfevents.1722705902.darshil-pc.16884.6" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tensorboard_logs/run-1/Execution Time_Full Validation/events.out.tfevents.1722705902.darshil-pc.16884.5" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tensorboard_logs/run-1/Execution Time_Training batch/events.out.tfevents.1722705894.darshil-pc.16884.2" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tensorboard_logs/run-1/Loss_Accumulated training batches' loss/events.out.tfevents.1722705896.darshil-pc.16884.3" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tensorboard_logs/run-1/Loss_validation loss/events.out.tfevents.1722705902.darshil-pc.16884.4" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tensorboard_logs/run-1/events.out.tfevents.1722705893.darshil-pc.16884.0" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tensorboard_logs/run-2/00300/step/metadata.tsv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tensorboard_logs/run-2/00300/step/tensors.tsv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tensorboard_logs/run-2/00600/step/metadata.tsv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tensorboard_logs/run-2/00600/step/tensors.tsv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tensorboard_logs/run-2/00900/step/metadata.tsv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tensorboard_logs/run-2/00900/step/tensors.tsv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tensorboard_logs/run-2/01200/step/metadata.tsv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tensorboard_logs/run-2/01200/step/tensors.tsv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tensorboard_logs/run-2/projector_config.pbtxt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data_preperation.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_preperation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hyper_parameters.py" beforeDir="false" afterPath="$PROJECT_DIR$/hyper_parameters.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/readme.md" beforeDir="false" afterPath="$PROJECT_DIR$/readme.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tensorboard_logging.py" beforeDir="false" afterPath="$PROJECT_DIR$/tensorboard_logging.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tensorboard_logs/run-1/1722535802.267958/events.out.tfevents.1722535802.darshil-pc.7780.1" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tensorboard_logs/run-1/Loss_training/events.out.tfevents.1722535805.darshil-pc.7780.2" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tensorboard_logs/run-1/Loss_validation/events.out.tfevents.1722535811.darshil-pc.7780.3" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tensorboard_logs/run-1/events.out.tfevents.1722535802.darshil-pc.7780.0" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tensorboard_logs/run-1/00300/step/metadata.tsv" beforeDir="false" afterPath="$PROJECT_DIR$/tensorboard_logs/run-1/00300/step/metadata.tsv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tensorboard_logs/run-1/00300/step/tensors.tsv" beforeDir="false" afterPath="$PROJECT_DIR$/tensorboard_logs/run-1/00300/step/tensors.tsv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tensorboard_logs/run-1/00600/step/metadata.tsv" beforeDir="false" afterPath="$PROJECT_DIR$/tensorboard_logs/run-1/00600/step/metadata.tsv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tensorboard_logs/run-1/00600/step/tensors.tsv" beforeDir="false" afterPath="$PROJECT_DIR$/tensorboard_logs/run-1/00600/step/tensors.tsv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tensorboard_logs/run-1/00900/step/metadata.tsv" beforeDir="false" afterPath="$PROJECT_DIR$/tensorboard_logs/run-1/00900/step/metadata.tsv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tensorboard_logs/run-1/00900/step/tensors.tsv" beforeDir="false" afterPath="$PROJECT_DIR$/tensorboard_logs/run-1/00900/step/tensors.tsv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tensorboard_logs/run-1/01200/step/metadata.tsv" beforeDir="false" afterPath="$PROJECT_DIR$/tensorboard_logs/run-1/01200/step/metadata.tsv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tensorboard_logs/run-1/01200/step/tensors.tsv" beforeDir="false" afterPath="$PROJECT_DIR$/tensorboard_logs/run-1/01200/step/tensors.tsv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tensorboard_logs/run-1/01500/step/metadata.tsv" beforeDir="false" afterPath="$PROJECT_DIR$/tensorboard_logs/run-1/01500/step/metadata.tsv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tensorboard_logs/run-1/01500/step/tensors.tsv" beforeDir="false" afterPath="$PROJECT_DIR$/tensorboard_logs/run-1/01500/step/tensors.tsv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tensorboard_logs/run-1/1722670453.248944/events.out.tfevents.1722670453.darshil-pc.17920.1" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tensorboard_logs/run-1/Loss_Accumulated training batches' loss/events.out.tfevents.1722670456.darshil-pc.17920.2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tensorboard_logs/run-1/Loss_validation loss/events.out.tfevents.1722670461.darshil-pc.17920.3" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tensorboard_logs/run-1/events.out.tfevents.1722670453.darshil-pc.17920.0" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tensorboard_logs/run-1/projector_config.pbtxt" beforeDir="false" afterPath="$PROJECT_DIR$/tensorboard_logs/run-1/projector_config.pbtxt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/train.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -73,16 +85,16 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
-    &quot;Python.Training.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/darsh/Desktop/learning/torch_codes/pytorch-mlp-classifcation&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "Python.Training.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "C:/Users/darsh/Desktop/learning/torch_codes/pytorch-mlp-classifcation",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
-}</component>
+}]]></component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>

@@ -11,3 +11,4 @@ class HyperParameters(BaseModel):
     num_epochs: Optional[int] = 5
     batch_size: Optional[int] = 100
     learning_rate: Optional[float] = 1e-3
+    device: Optional[str] = "cuda" # default for GPU
