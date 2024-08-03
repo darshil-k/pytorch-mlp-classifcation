@@ -13,8 +13,6 @@ We use Tensorboard for logging and monitoring the model training process.
 - Add logging dataset summary
 - Add logging system metrics
 - Create a separate class for accuracy metrics
-- Loss function and Optimizer should be configurable and added to logs1
+- Loss function and Optimizer should be configurable and added to logs
 - Add logging device information
-- Add logging execution time
 - Add test, inference & batch inference scripts
-- Add logging for final layer embeddings in tensorboard projector

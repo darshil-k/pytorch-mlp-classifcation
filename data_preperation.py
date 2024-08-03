@@ -7,9 +7,55 @@ from typing import Literal
 # Importing the required libraries
 import numpy as np
 import torch
+from pydantic import BaseModel
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 import os
+
+class MNISTDataClasses(BaseModel):
+    """
+    This is a mapping of MNIST data classes to their respective indexes.
+    """
+    digit_zero: int = 0
+    digit_one: int = 1
+    digit_two: int = 2
+    digit_three: int = 3
+    digit_four: int = 4
+    digit_five: int = 5
+    digit_six: int = 6
+    digit_seven: int = 7
+    digit_eight: int = 8
+    digit_nine: int = 9
+
+    def get_class_name_mapping(self) -> dict:
+        """
+        This method returns the class name mapping.
+        :return: The class name mapping.
+        """
+        return self.__dict__
+
+    def get_class_name(self, class_index: int) -> str:
+        """
+        This method returns the class name for the given class index.
+        :param class_index: The class index.
+        :return: The class name.
+        """
+        class_name = ""
+        for key, value in self.get_class_name_mapping().items():
+            if value == class_index:
+                class_name = key
+        return class_name
+
+    def get_class_names(self) -> list[str]:
+        """
+        This method returns the list of class names in order of index.
+        :return: The list of class names.
+        """
+        class_names = []
+        sort_classes = sorted(self.classes.__dict__.items(), key=lambda x: x[1])
+        for key, value in sort_classes:
+            class_names.append(key)
+        return class_names
 
 class MNISTDataPreparation:
     """
@@ -26,6 +72,7 @@ class MNISTDataPreparation:
         self.batch_size = batch_size
         self.data_dir = data_dir
         self.is_download = is_download
+        self.classes = MNISTDataClasses()
         # placeholder for data
         self.train_data = []
         self.test_data = []
@@ -82,4 +129,12 @@ class MNISTDataPreparation:
         """
         steps_per_epoch = np.ceil(self.get_length("train") / self.batch_size)
         return int(steps_per_epoch)
+
+    def get_classes(self) -> MNISTDataClasses:
+        """
+        This method returns the MNIST data classes.
+        :return: The MNIST data classes.
+        """
+        return self.classes
+
 
