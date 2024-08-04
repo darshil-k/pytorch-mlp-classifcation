@@ -1,6 +1,7 @@
 """
 This script is used to create a logger using Tensorboard.
 """
+import time
 from typing import Any, Literal, Optional, List
 
 import numpy
@@ -12,6 +13,9 @@ from data_preperation import MNISTDataClasses
 from model_utils import summary
 
 from hyper_parameters import HyperParameters
+
+import subprocess as sp
+from threading import Thread
 
 
 class TensorboardLogging:
@@ -27,6 +31,7 @@ class TensorboardLogging:
         self.log_dir = log_dir
         self.setup(run_name)
         self.device_profiler_state = False
+        self.gpu_info_logger_state = False
 
     def setup(self, run_name: str | None = None):
         """
@@ -90,15 +95,6 @@ class TensorboardLogging:
         """
         self.writer.add_scalars("Execution Time", {execution_type: time_taken}, step)
 
-
-    def stop(self):
-        """
-        This method stops the Tensorboard.
-        """
-        self.writer.close()
-        if self.device_profiler_state:
-            self.device_profiler_state = False
-            self.profiler.stop()
 
     def visualize_embeddings(self, features: Any, labels: Any, global_step: int, select_n_points: Optional[int]=100, tag: Optional[str] = "step", classes : MNISTDataClasses | None = None):
         """
@@ -195,5 +191,76 @@ class TensorboardLogging:
         """
         assert self.device_profiler_state, "Device profiler is not set up. Please call setup_device_profiler() method first."
         self.profiler.step()
+
+    def get_gpu_info(self):
+        """
+        This method returns the GPU information (name, total memory, allocated memory, utilization).
+        :return: A dictionary containing the GPU information.
+        """
+        gpu_info = {}
+        num_gpus = torch.cuda.device_count()
+        for gpu_id in range(num_gpus):
+            gpu_name = torch.cuda.get_device_name(gpu_id)
+            gpu_total_memory = torch.cuda.get_device_properties(gpu_id).total_memory / 1e6  # In MB
+            gpu_allocated_memory = torch.cuda.memory_allocated(gpu_id) / 1e6  # In MB
+            gpu_utilization = torch.cuda.utilization(gpu_id)
+            gpu_info[f"GPU {gpu_id}"] = {"Name": gpu_name, "Total Memory (MB)": gpu_total_memory, "Allocated Memory (MB)": gpu_allocated_memory, "Utilization (%)": gpu_utilization}
+
+
+        return gpu_info
+
+
+    def log_gpu_memory(self, record_every_n_seconds: int):
+
+        while True:
+            output_to_list = lambda x: x.decode('ascii').split('\n')[:-1]
+            COMMAND = "nvidia-smi --query-gpu=memory.used,memory.total,utilization.gpu,temperature.gpu --format=csv"
+            try:
+                gpu_use_info = output_to_list(sp.check_output(COMMAND.split(), stderr=sp.STDOUT))[1:]
+            except sp.CalledProcessError as e:
+                raise RuntimeError(
+                    "command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
+            gpu_use_info = [int(x.split()[0]) for i, x in enumerate(gpu_use_info[0].split(","))]
+            log_time = time.time()
+
+            self.writer.add_scalars("GPU Memory", {"Usage (MiB)": gpu_use_info[0]}, int(log_time - self.gpu_logging_start_time))
+            self.writer.add_scalars("GPU Memory", {"Total (MiB)": gpu_use_info[1]}, int(log_time - self.gpu_logging_start_time))
+            self.writer.add_scalars("GPU Utilization", {"Usage (%)": gpu_use_info[2]}, int(log_time - self.gpu_logging_start_time))
+            self.writer.add_scalars("GPU Utilization", {"Total (%)": 100}, int(log_time - self.gpu_logging_start_time))
+            self.writer.add_scalars("GPU Temperature", {"Temperature (C)": gpu_use_info[3]}, int(log_time - self.gpu_logging_start_time))
+
+            time.sleep(record_every_n_seconds)
+
+            if not self.gpu_info_logger_state:
+                print("GPU info logger stopped")
+                return
+
+
+
+    def setup_gpu_usage_metrics(self, record_every_n_seconds: int = 5):
+        """
+        This method sets up the GPU metrics.
+        :param record_every_n_seconds: The time interval to record the GPU metrics.
+        """
+        if torch.cuda.is_available():
+            self.gpu_logging_start_time = time.time()
+            self.gpu_logger_thread = Thread(target=self.log_gpu_memory, name="gpu_logger_thread", args=[record_every_n_seconds], daemon=True)
+            self.gpu_info_logger_state = True
+            self.gpu_logger_thread.start()
+        else:
+            print("GPU not available. Cannot log GPU metrics.")
+
+
+    def stop(self):
+        """
+        This method stops the Tensorboard. It also stops the device profiler and  GPU logger thread if they are running.
+        """
+        self.writer.close()
+        if self.device_profiler_state:
+            self.device_profiler_state = False
+            self.profiler.stop()
+        if self.gpu_info_logger_state:
+            self.gpu_info_logger_state = False
+
 
 

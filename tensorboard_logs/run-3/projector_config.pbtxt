@@ -1,0 +1,25 @@
+embeddings {
+  tensor_name: "step:00300"
+  metadata_path: "00300/step\\metadata.tsv"
+  tensor_path: "00300/step\\tensors.tsv"
+}
+embeddings {
+  tensor_name: "step:00600"
+  metadata_path: "00600/step\\metadata.tsv"
+  tensor_path: "00600/step\\tensors.tsv"
+}
+embeddings {
+  tensor_name: "step:00900"
+  metadata_path: "00900/step\\metadata.tsv"
+  tensor_path: "00900/step\\tensors.tsv"
+}
+embeddings {
+  tensor_name: "step:01200"
+  metadata_path: "01200/step\\metadata.tsv"
+  tensor_path: "01200/step\\tensors.tsv"
+}
+embeddings {
+  tensor_name: "step:01500"
+  metadata_path: "01500/step\\metadata.tsv"
+  tensor_path: "01500/step\\tensors.tsv"
+}

@@ -15,7 +15,8 @@ from tensorboard_logging import TensorboardLogging
 from model import NeuralNet
 
 # set up mlflow for tracking
-logger = TensorboardLogging(run_name="run-2")
+logger = TensorboardLogging(run_name="run-3")
+logger.setup_gpu_usage_metrics()
 
 # Prepare Hyperparameters and log to mlflow
 hyper_parameters = HyperParameters(batch_size=200)
@@ -29,7 +30,8 @@ classes = data.classes
 
 # Device configuration
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-hyper_parameters.device = device
+device_name = str(device)
+hyper_parameters.device = device_name
 # Avoid device profiler as it is too heavy. Creates a lot of data, overhead
 # logger.setup_device_profiler()
 logger.log_hyper_parameters(hyper_parameters)
@@ -38,7 +40,7 @@ logger.log_hyper_parameters(hyper_parameters)
 # Model and log model summary
 model = NeuralNet(hyper_parameters)
 model.to(device)
-logger.log_model_summary(model, hyper_parameters, device)
+logger.log_model_summary(model, hyper_parameters, device_name)
 #TODO: solve for this error
 # logger.log_model_graph(model)
 
