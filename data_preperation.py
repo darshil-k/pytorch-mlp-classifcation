@@ -8,9 +8,10 @@ from typing import Literal
 import numpy as np
 import torch
 from pydantic import BaseModel
-from torchvision import datasets, transforms
-from torch.utils.data import DataLoader
+from torchvision import transforms
+from torch.utils.data import Dataset, DataLoader
 import os
+import pandas as pd
 
 class MNISTDataClasses(BaseModel):
     """
@@ -57,6 +58,52 @@ class MNISTDataClasses(BaseModel):
             class_names.append(key)
         return class_names
 
+
+class MNISTCustomDataset(Dataset):
+    """
+    This class is used to create a custom dataset for MNIST.
+    The data is loaded from disk.
+    """
+    def __init__(self, data_dir: str, train: bool):
+        """
+        This method initializes the class.
+        :param data_dir: The directory where the data (train.csv & test.csv) is present.
+        :param train: If True, loads the train data, else loads the test data.
+        """
+        assert os.path.exists(data_dir), "Data directory does not exist. Please set is_download to True to download the data."
+        assert os.path.exists(os.path.join(data_dir, "mnist_train.csv")), "Train data file does not exist."
+        assert os.path.exists(os.path.join(data_dir, "mnist_test.csv")), "Test data file does not exist."
+        self.data_dir = data_dir
+        self.is_train = train
+
+        if train:
+            self.dataframe = pd.read_csv(os.path.join(data_dir, "mnist_train.csv"))
+        else:
+            self.dataframe = pd.read_csv(os.path.join(data_dir, "mnist_test.csv"))
+
+    def __len__(self):
+        """
+        This method returns the length of the dataset.
+        :return:
+        """
+        return len(self.dataframe)
+
+    def __getitem__(self, idx) -> (np.ndarray, int):
+        """
+        This method returns the image and label for the given index.
+        :param idx: index of the image
+        :return: Flatten numpy array of image and label as int
+        """
+        # label is the first column
+        label = self.dataframe.iloc[idx, 0]
+
+        # image (flatten data) is the rest of the columns
+        image = self.dataframe.iloc[idx, 1:].values
+        image = image.astype(np.float32)
+        return image, label
+
+
+
 class MNISTDataPreparation:
     """
     This class is used to prepare the train and test data for the model.
@@ -99,8 +146,13 @@ class MNISTDataPreparation:
         :return: The train and test data loaders.
         """
         # Loading the train and test data
-        self.train_data = datasets.MNIST(root=self.data_dir, train=True, download=self.is_download, transform=self.transform_image_flatten())
-        self.test_data = datasets.MNIST(root=self.data_dir, train=False, download=self.is_download, transform=self.transform_image_flatten())
+        ## Following two lines should be used to load data if it is available as official format. If the data is not present than use download=True
+        # self.train_data = datasets.MNIST(root=self.data_dir, train=True, download=self.is_download, transform=self.transform_image_flatten())
+        # self.test_data = datasets.MNIST(root=self.data_dir, train=False, download=self.is_download, transform=self.transform_image_flatten())
+
+        ## Use custom dataset to load data from disk
+        self.train_data = MNISTCustomDataset(data_dir=self.data_dir, train=True)
+        self.test_data = MNISTCustomDataset(data_dir=self.data_dir, train=False)
 
         # Creating the data loaders
         train_loader = DataLoader(self.train_data, batch_size=self.batch_size, shuffle=True)

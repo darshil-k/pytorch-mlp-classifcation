@@ -22,7 +22,9 @@ logger.setup_gpu_usage_metrics()
 hyper_parameters = HyperParameters(batch_size=200)
 
 # Prepare data
-data = MNISTDataPreparation(batch_size=hyper_parameters.batch_size, data_dir='data', is_download=False)
+## If we are using MNIST dataset within MNISTDataPreparation class, argument `data_dir` should be set to "data" and there must be a directory called MNIST that is donloaded.
+## If the data is not downloaded, argument `is_download` should be set to True.
+data = MNISTDataPreparation(batch_size=hyper_parameters.batch_size, data_dir='data/MNIST_as_CSV', is_download=False)
 train_loader, test_loader = data.prepare_data()
 classes = data.classes
 

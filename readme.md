@@ -9,9 +9,8 @@ MNIST: Handwritten digits dataset
 We use Tensorboard for logging and monitoring the model training process.
 
 ## TODO
-- Add support for custom datasets
 - Add logging dataset summary
 - Create a separate class for accuracy metrics
 - Loss function and Optimizer should be configurable and added to logs
 - Add test, inference & batch inference scripts
-- expreiment with this: add_custom_scalars_multilinechart rather than add_scalars
+- experiment with this: add_custom_scalars_multilinechart rather than add_scalars
