@@ -15,7 +15,7 @@ from tensorboard_logging import TensorboardLogging
 from model import NeuralNet
 
 # set up mlflow for tracking
-logger = TensorboardLogging(run_name="run-3")
+logger = TensorboardLogging(run_name="run-4")
 logger.setup_gpu_usage_metrics()
 
 # Prepare Hyperparameters and log to mlflow
@@ -43,8 +43,7 @@ logger.log_hyper_parameters(hyper_parameters)
 model = NeuralNet(hyper_parameters)
 model.to(device)
 logger.log_model_summary(model, hyper_parameters, device_name)
-#TODO: solve for this error
-# logger.log_model_graph(model)
+logger.log_model_graph(model, torch.randn(hyper_parameters.batch_size, hyper_parameters.input_size).to(device))
 
 # Loss, accuracy & optimizer setup
 loss_func = nn.CrossEntropyLoss()

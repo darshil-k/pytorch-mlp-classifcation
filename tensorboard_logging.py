@@ -52,12 +52,13 @@ class TensorboardLogging:
         image_grid = torchvision.utils.make_grid(images)
         self.writer.add_image("Sample Images", image_grid)
 
-    def log_model_graph(self, model: Any):
+    def log_model_graph(self, model: Any, dummy_input: Any):
         """
         This method logs the model graph to Tensorboard.
         :param model: The model.
+        :param dummy_input: The dummy input.
         """
-        self.writer.add_graph(model)
+        self.writer.add_graph(model, dummy_input)
 
     def log_model_summary(self, model, hyper_parameters: HyperParameters, device: str):
         """
