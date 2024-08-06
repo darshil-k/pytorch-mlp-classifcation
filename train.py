@@ -7,16 +7,21 @@ import time
 # Importing the required libraries
 import torch
 import torch.nn as nn
-from torchmetrics import Accuracy, F1Score
 
+from accuracy_metrics import AccuracyMetrics
 from data_preperation import MNISTDataPreparation
 from hyper_parameters import HyperParameters
 from tensorboard_logging import TensorboardLogging
 from model import NeuralNet
+from enums import ProblemType
+
 
 # set up mlflow for tracking
-logger = TensorboardLogging(run_name="run-4")
+logger = TensorboardLogging(run_name="run-5")
 logger.setup_gpu_usage_metrics()
+
+# Define the problem we are solving
+problem_type = ProblemType.CLASSIFICATION.value
 
 # Prepare Hyperparameters and log to mlflow
 hyper_parameters = HyperParameters(batch_size=200)
@@ -47,9 +52,8 @@ logger.log_model_graph(model, torch.randn(hyper_parameters.batch_size, hyper_par
 
 # Loss, accuracy & optimizer setup
 loss_func = nn.CrossEntropyLoss()
-accuracy_func = Accuracy(task="multiclass", num_classes=10, average="macro").to(device)
-f1_score_func = F1Score(task="multiclass", num_classes=10, average="macro").to(device)
 optimizer = torch.optim.Adam(model.parameters(), lr=hyper_parameters.learning_rate)
+accuracy = AccuracyMetrics(problem_type, device_name)
 
 # setup variables for print
 log_after_n_train_steps = 100
@@ -102,18 +106,16 @@ for epoch_idx in range(hyper_parameters.num_epochs):
 
             # calculate accumulated training accuracy and log to mlflow
             _, accumulated_batch_train_predicted_classes_indices = torch.max(accumulated_batch_train_predictions, dim=1)
-            accumulated_batch_train_accuracy = accuracy_func(accumulated_batch_train_predicted_classes_indices, accumulated_batch_train_labels)
-            accumulated_batch_train_f1score = f1_score_func(accumulated_batch_train_predicted_classes_indices, accumulated_batch_train_labels)
+            accuracies = accuracy.calculate_accuracy(accumulated_batch_train_predicted_classes_indices, accumulated_batch_train_labels)
 
 
 
-            print ("Epoch [{}/{}], Step [{}/{}, total steps = {}], Accumulated batches' Loss: {:.4f}, Accumulated batches' f1-score: {:.4f}, Accumulated batches' accuracy: {:.4f}"
-                   .format(epoch_idx+1, hyper_parameters.num_epochs, batch_idx+1, len(train_loader), total_step_count, accumulated_batch_train_loss.item(), accumulated_batch_train_f1score.item(), accumulated_batch_train_accuracy.item()))
+            print ("Epoch [{}/{}], Step [{}/{}, total steps = {}], Accumulated batches' Loss: {:.4f}"
+                   .format(epoch_idx+1, hyper_parameters.num_epochs, batch_idx+1, len(train_loader), total_step_count, accumulated_batch_train_loss.item()))
 
             # Log the loss to mlflow
-            logger.log_loss("Accumulated training batches' loss", accumulated_batch_train_loss.item(), total_step_count)
-            # logger.log_metric("training-accuracy", accuracy.item(), total_step_count)
-            # logger.log_metric("training-f1-score", f1score.item(), total_step_count)
+            logger.log_loss("Accumulated training batches", accumulated_batch_train_loss.item(), total_step_count)
+            logger.log_accuracy("Accumulated training batches", accuracies, total_step_count)
             # Avoid device profiler as it is too heavy. Creates a lot of data, overhead
             # logger.device_profiler_step()
 
@@ -146,17 +148,13 @@ for epoch_idx in range(hyper_parameters.num_epochs):
 
         # calculate validation accuracy
         _, validation_predictions_classes_indices = torch.max(validation_predictions, dim=1)
-        validation_accuracy = accuracy_func(validation_predictions_classes_indices, validation_labels)
-        validation_f1score = f1_score_func(validation_predictions_classes_indices, validation_labels)
+        accuracies = accuracy.calculate_accuracy(validation_predictions_classes_indices, validation_labels)
 
 
-
-        print('Validation loss: {:.4f}, f1-score: {:.4f}, accuracy: {:.4f}'
-              .format(validation_loss.item(), validation_f1score.item(), validation_accuracy.item()))
+        print('Validation loss: {:.4f}'.format(validation_loss.item()))
         # Log the accumulated loss and accuracy metrics to mlflow
-        logger.log_loss("validation loss", validation_loss.item(), total_step_count)
-        # logger.log_metric("validation-accuracy", validation_accuracy.item(), total_step_count)
-        # logger.log_metric("validation-f1-score", validation_f1score.item(), total_step_count)
+        logger.log_loss("validation", validation_loss.item(), total_step_count)
+        logger.log_accuracy("Validation", accuracies, total_step_count)
 
         logger.visualize_embeddings(validation_predictions, validation_labels, total_step_count, classes=classes)
         # Avoid device profiler as it is too heavy. Creates a lot of data, overhead

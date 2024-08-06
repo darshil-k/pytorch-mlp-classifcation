@@ -2,7 +2,7 @@
 This script is used to create a logger using Tensorboard.
 """
 import time
-from typing import Any, Literal, Optional, List
+from typing import Any, Literal, Optional, List, Dict
 
 import numpy
 import torchvision
@@ -86,6 +86,16 @@ class TensorboardLogging:
         :param step: The step value
         """
         self.writer.add_scalars("Loss", {loss_type: loss}, step)
+
+    def log_accuracy(self, accuracy_type: str, accuracy: Dict[str, float], step: int):
+        """
+        This method logs the accuracy to Tensorboard.
+        :param accuracy_type: The type of accuracy.
+        :param accuracy: The accuracy value.
+        :param step: The step value.
+        """
+        for accuracy_metric, accuracy_value in accuracy.items():
+            self.writer.add_scalars(accuracy_metric, {accuracy_type: accuracy_value}, step)
 
     def log_execution_time(self, execution_type: str, time_taken: int, step: int):
         """
